@@ -1,0 +1,77 @@
+apiVersion: v1
+kind: Template
+metadata:
+  name: custom-jenkins
+parameters:
+- name: NAME
+  description: The name of the build to create
+  displayName: Build Name
+  value: jenkins-base
+  required: true
+- name: SOURCE_URL
+  description: The URL of the Jenkins image repository
+  displayName: Source URL
+  value: https://github.com/openshift/jenkins.git
+  required: true
+- name: SOURCE_REF
+  description: The git reference of the Jenkins image repository
+  displayName: Source Reference
+  value: master
+  required: true
+- name: SOURCE_CONTEXT
+  description: The context directory within the source repository
+  displayName: Context Directory
+  value: "2"
+  required: false
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      build: "${NAME}"
+    name: "${NAME}"
+  spec:
+    output:
+      to:
+        kind: ImageStreamTag
+        name: "${NAME}:latest"
+    runPolicy: Serial
+    source:
+      contextDir: "${SOURCE_CONTEXT}"
+      git:
+        ref: "${SOURCE_REF}"
+        uri: "${SOURCE_URL}"
+      type: Git
+    strategy:
+      dockerStrategy:
+        from:
+          kind: ImageStreamTag
+          name: centos:centos7
+      type: Docker
+    triggers:
+    - type: ConfigChange
+    - imageChange: {}
+      type: ImageChange
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: "${NAME}"
+    name: centos
+  spec:
+    tags:
+    - from:
+        kind: DockerImage
+        name: centos:centos7
+      name: centos7
+      referencePolicy:
+        type: Source
+  status:
+    dockerImageRepository: ""
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    labels:
+      build: "${NAME}"
+    name: "${NAME}"
+  spec: {}
