@@ -20,7 +20,7 @@ node {
     def params = "-p NAME=${name}"
     params += " -p SOURCE_URL=${sourceUrl}"
     params += " -p SOURCE_REF=${sourceRef}"
-    params += " -p SOURCE_CONTEXT="${sourceContext}"
+    params += " -p SOURCE_CONTEXT=${sourceContext}"
     params += " -p BASE_NAME=jenkins-base"
     params += " -p BASE_TAG=latest"
     params += " -p BASE_NAMESPACE=\"\""
