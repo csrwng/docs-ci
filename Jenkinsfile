@@ -10,6 +10,10 @@ node {
     params += " -p SOURCE_URL=${sourceUrl}"
     params += " -p SOURCE_REF=${sourceRef}"
     sh "oc new-app -f openshift/jenkins-docker-build-template.yaml ${params}"
+    // Wait for a build to be created
+    timeout(10) {
+      sh "while(true); do if oc get builds -l buildconfig=${name}; then break; fi; done"
+    }
     openshiftVerifyBuild bldCfg: name, waitTime: '300000'
   }
   stage("Build Jenkins with Plugins") {
@@ -25,6 +29,9 @@ node {
     params += " -p BASE_TAG=latest"
     params += " -p BASE_NAMESPACE=\"\""
     sh "oc new-app -f openshift/jenins-s2i-build-template.yaml ${params}"
+    timeout(10) {
+      sh "while(true); do if oc get builds -l buildconfig=${name}; then break; fi; done"
+    }
     openshiftVerifyBuild bldCfg: name, waitTime: '300000'
   }
   stage("Deploy Jenkins") {
