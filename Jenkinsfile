@@ -12,7 +12,7 @@ node {
     sh "oc new-app -f openshift/jenkins-docker-build-template.yaml ${params}"
     // Wait for a build to be created
     timeout(10) {
-      sh "while(true); do if oc get builds -l buildconfig=${name}; then break; fi; done"
+      sh "while(true); do if oc get builds -l buildconfig=${name} | grep -q ${name}; then break; sleep 1; fi; done"
     }
     openshiftVerifyBuild bldCfg: name, waitTime: '300000'
   }
@@ -28,9 +28,9 @@ node {
     params += " -p BASE_NAME=jenkins-base"
     params += " -p BASE_TAG=latest"
     params += " -p BASE_NAMESPACE=\"\""
-    sh "oc new-app -f openshift/jenins-s2i-build-template.yaml ${params}"
+    sh "oc new-app -f openshift/jenkins-s2i-build-template.yaml ${params}"
     timeout(10) {
-      sh "while(true); do if oc get builds -l buildconfig=${name}; then break; fi; done"
+      sh "while(true); do if oc get builds -l buildconfig=${name} | grep -q ${name}; then break; sleep 1; fi; done"
     }
     openshiftVerifyBuild bldCfg: name, waitTime: '300000'
   }
