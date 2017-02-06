@@ -11,7 +11,7 @@ node {
     params += " -p SOURCE_REF=${sourceRef}"
     sh "oc new-app -f openshift/jenkins-docker-build-template.yaml ${params}"
     timeout(10) {
-      sh "do while(true); if oc get is centos -o jsonpath='{ .status.tags[*].tag }' | grep -q centos7; then break; fi; done"
+      sh "while(true); do if oc get is centos -o jsonpath='{ .status.tags[*].tag }' | grep -q centos7; then break; fi; done"
     }
     sh "oc start-build bc/${name} --follow"
   }
