@@ -25,7 +25,7 @@ node {
     params += " -p BASE_TAG=latest"
     params += " -p BASE_NAMESPACE=\"\""
     sh "oc new-app -f openshift/jenkins-s2i-build-template.yaml ${params}"
-    sh "oc start-build bc/${name} --follow --from-dir=./jenkins
+    sh "oc start-build bc/${name} --follow --from-dir=./jenkins"
   }
   stage("Deploy Jenkins") {
     def params = "-p ENABLE_OAUTH=false"
