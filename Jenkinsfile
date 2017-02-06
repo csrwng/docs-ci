@@ -38,6 +38,6 @@ node {
     params += " -p JENKINS_SERVICE_NAME=docs-ci-jenkins"
     params += " -p JNLP_SERVICE_NAME=docs-ci-jnlp"
     sh "oc new-app jenkins-persistent ${params}"
-    openshiftVerifyDeployment name: "docs-ci-jenkins"
+    openshiftVerifyDeployment depCfg: "docs-ci-jenkins"
   }
 }
