@@ -49,7 +49,6 @@ objects:
           name: centos:centos7
       type: Docker
     triggers:
-    - type: ConfigChange
     - imageChange: {}
       type: ImageChange
 - apiVersion: v1

@@ -67,7 +67,6 @@ objects:
           namespace: "${BASE_NAMESPACE}"
       type: Source
     triggers:
-    - type: ConfigChange
     - imageChange: {}
       type: ImageChange
 - apiVersion: v1

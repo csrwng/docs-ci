@@ -10,11 +10,7 @@ node {
     params += " -p SOURCE_URL=${sourceUrl}"
     params += " -p SOURCE_REF=${sourceRef}"
     sh "oc new-app -f openshift/jenkins-docker-build-template.yaml ${params}"
-    // Wait for a build to be created
-    timeout(10) {
-      sh "while(true); do if oc get builds -l buildconfig=${name} | grep -q ${name}; then break; sleep 1; fi; done"
-    }
-    openshiftVerifyBuild bldCfg: name, waitTime: '300000'
+    sh "oc start-build bc/${name} --follow"
   }
   stage("Build Jenkins with Plugins") {
     def sourceUrl = "https://github.com/csrwng/docs-ci.git"
@@ -29,10 +25,7 @@ node {
     params += " -p BASE_TAG=latest"
     params += " -p BASE_NAMESPACE=\"\""
     sh "oc new-app -f openshift/jenkins-s2i-build-template.yaml ${params}"
-    timeout(10) {
-      sh "while(true); do if oc get builds -l buildconfig=${name} | grep -q ${name}; then break; sleep 1; fi; done"
-    }
-    openshiftVerifyBuild bldCfg: name, waitTime: '300000'
+    sh "oc start-build bc/${name} --follow --from-dir=./jenkins
   }
   stage("Deploy Jenkins") {
     def params = "-p ENABLE_OAUTH=false"
@@ -41,7 +34,7 @@ node {
     params += " -p JENKINS_IMAGE_STREAM_TAG=docs-ci-jenkins:latest"
     params += " -p JENKINS_SERVICE_NAME=docs-ci-jenkins"
     params += " -p JNLP_SERVICE_NAME=docs-ci-jnlp"
-    sh "oc new-app --template=openshfit/jenkins-persistent ${params}"
+    sh "oc new-app jenkins-persistent ${params}"
     openshiftVerifyDeployment name: "docs-ci-jenkins"
   }
 }
