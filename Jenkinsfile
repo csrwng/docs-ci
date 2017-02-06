@@ -10,7 +10,7 @@ node {
     params += " -p SOURCE_URL=${sourceUrl}"
     params += " -p SOURCE_REF=${sourceRef}"
     sh "oc new-app -f openshift/jenkins-docker-build-template.yaml ${params}"
-    openshiftVerifyBuild name: name, waitTime: 300000
+    openshiftVerifyBuild bldCfg: name, waitTime: '300000'
   }
   stage("Build Jenkins with Plugins") {
     def sourceUrl = "https://github.com/csrwng/docs-ci.git"
@@ -25,7 +25,7 @@ node {
     params += " -p BASE_TAG=latest"
     params += " -p BASE_NAMESPACE=\"\""
     sh "oc new-app -f openshift/jenins-s2i-build-template.yaml ${params}"
-    openshiftVerifyBuild name: name, waitTime: 300000
+    openshiftVerifyBuild bldCfg: name, waitTime: '300000'
   }
   stage("Deploy Jenkins") {
     def params = "-p ENABLE_OAUTH=false"
