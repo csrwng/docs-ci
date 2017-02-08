@@ -58,7 +58,7 @@ bparees</adminlist>
           <branch></branch>
         </org.jenkinsci.plugins.ghprb.GhprbBranch>
       </blackListTargetBranches>
-      <gitHubAuthId>2ac254f9-479c-41a3-8089-bc97d6fdb141</gitHubAuthId>
+      <gitHubAuthId>d43dcc27-32e7-4e17-91ed-0cdc39c7fae9</gitHubAuthId>
       <triggerPhrase>\[preview\]</triggerPhrase>
       <skipBuildPhrase>.*\[skip\W+preview\].*</skipBuildPhrase>
       <blackListLabels></blackListLabels>
@@ -67,7 +67,27 @@ bparees</adminlist>
         <org.jenkinsci.plugins.ghprb.extensions.build.GhprbCancelBuildsOnUpdate>
           <overrideGlobal>false</overrideGlobal>
         </org.jenkinsci.plugins.ghprb.extensions.build.GhprbCancelBuildsOnUpdate>
-        <org.jenkinsci.plugins.ghprb.extensions.status.GhprbNoCommitStatus/>
+        <org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
+          <commitStatusContext></commitStatusContext>
+          <triggeredStatus>--none--</triggeredStatus>
+          <startedStatus>--none--</startedStatus>
+          <statusUrl>--none--</statusUrl>
+          <addTestResults>false</addTestResults>
+          <completedStatus>
+            <org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+              <message>--none--</message>
+              <result>SUCCESS</result>
+            </org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+            <org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+              <message>--none--</message>
+              <result>ERROR</result>
+            </org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+            <org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+              <message>--none--</message>
+              <result>FAILURE</result>
+            </org.jenkinsci.plugins.ghprb.extensions.comments.GhprbBuildResultMessage>
+          </completedStatus>
+        </org.jenkinsci.plugins.ghprb.extensions.status.GhprbSimpleStatus>
       </extensions>
     </org.jenkinsci.plugins.ghprb.GhprbTrigger>
   </triggers>
