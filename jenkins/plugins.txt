@@ -1,2 +1,3 @@
 ghprb:1.35.0
 openshift-client:0.9.0
+parameterized-trigger:2.32
