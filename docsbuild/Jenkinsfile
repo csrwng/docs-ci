@@ -9,9 +9,11 @@ def projectCreated=false
 def appName="openshift-docs"
 def projectPrefix="docs"
 def previewGenerated=false
+def repoUrl="https://github.com/cw-paas-dev/openshift-docs.git"
 
 def setBuildStatus = { String context, String message, String state, String backref ->
      step([$class: "GitHubCommitStatusSetter",
+           reposSource: [$class: "ManuallyEnteredRepositorySource", url: repoUrl],
            commitShaSource: [$class: "ManuallyEnteredShaSource", sha: "${githubCommit}"],
            contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
            statusBackrefSource: [$class: "ManuallyEnteredBackrefSource", backref: backref],
@@ -26,9 +28,7 @@ openshift.withCluster() {
         node {
             stage("Checkout") {
                 setBuildStatus("ci/preview", "Generating preview", "PENDING", "${RUN_DISPLAY_URL}")
-                checkout 
-                  changelog: false, 
-                  poll: false, 
+                checkout(changelog: false, poll: false, 
                   scm: [$class: 'GitSCM', 
                     branches: [
                       [name: gitref]
@@ -41,13 +41,13 @@ openshift.withCluster() {
                         credentialsId: 'prtestbot_userpass', 
                         name: 'origin', 
                         refspec: '+refs/pull/*:refs/remotes/origin/pr/*', 
-                        url: 'https://github.com/cw-paas-dev/openshift-docs.git'
+                        url: repoUrl,
                       ]
                     ]
-                  ]
+                  ])
             }
             stage ("Create Project") {
-                project="docs-${githubCommit.substring(0,8)}"
+                project="docs-${githubCommit.substring(0,7)}"
                 openshift.newProject(project.toString())
                 projectCreated=true
             }
