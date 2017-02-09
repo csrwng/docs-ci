@@ -1,0 +1,115 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: docs-preview-pipeline
+metadata:
+  name: docs-preview-pipeline
+parameters:
+- name: NAME
+  description: The name of the build to create
+  displayName: Build Name
+  value: docs-preview-pipeline
+  required: true
+objects:
+- apiVersion: v1
+  kind: BuildConfig
+  metadata:
+    labels:
+      name: "${NAME}"
+    name: "${NAME}"
+  spec:
+    strategy:
+      jenkinsPipelineStrategy:
+        jenkinsfile: |-
+          // Pipeline variables
+          def isPR=false                   // true if the branch being tested belongs to a PR
+          def project=""                   // project where build and deploy will occur
+          def projectCreated=false         // true if a project was created by this build and needs to be cleaned up
+          def repoUrl=""                   // the URL of this project's repository
+          def appName="openshift-docs"     // name of application to create
+          def approved=false               // true if the preview was approved
+          def commitId=""
+
+          // getRepoURL retrieves the origin URL of the current source repository
+          def getRepoURL = {
+            return sh(script: "git config --get remote.origin.url", returnStdout: true).trim()
+          }
+
+          def getRepoCommit = {
+            return sh(script: "git rev-parse --short HEAD", returnStdout: true).trim()
+          }
+
+          // getRouteHostname retrieves the host name from the given route in an
+          // OpenShift namespace
+          def getRouteHostname = { String routeName, String projectName ->
+            return sh(script: "oc get route ${routeName} -n ${projectName} -o jsonpath='{ .spec.host }'", returnStdout: true).trim()
+          }
+
+          def setBuildStatus = { String context, String message, String state, String backref ->
+              step([$class: "GitHubCommitStatusSetter",
+                    commitShaSource: [$class: "ManuallyEnteredShaSource", sha: "${github_commit}"],
+                    contextSource: [$class: "ManuallyEnteredCommitContextSource", context: context],
+                    statusBackrefSource: [$class: "ManuallyEnteredBackrefSource", backref: ""],
+                    statusResultSource: [$class: "ConditionalStatusResultSource",
+                                          results: [[$class: "AnyBuildResult",
+                                                    message: message,
+                                                    state: state ]]]])
+          }
+
+          try { // Use a try block to perform cleanup in a finally block when the build fails
+
+            node {
+              // Initialize variables in default node context
+              baseProject = env.PROJECT_NAME
+              project     = env.PROJECT_NAME
+
+              stage ('Checkout') {
+                setBuildStatus("ci/preview", "Generating preview", "PENDING", "${BUILD_URL}")
+                checkout scm
+                sh "env"
+                repoUrl = getRepoURL()
+                commitId = getRepoCommit()
+              }
+
+              // When testing a PR, create a new project to perform the build
+              // and deploy artifacts.
+              stage ('Create PR Project') {
+                project = "${appName}-${commitId}"
+                sh "oc new-project ${project}"
+                projectCreated=true
+                sh "oc policy add-role-to-group view system:authenticated -n ${project}"
+              }
+
+              stage ('Apply object configurations') {
+                sh "oc process -f _openshift/docs-template.yaml -n ${project} | oc apply -f - -n ${project}"
+              }
+
+              stage ('Build') {
+                sh "oc start-build ${appName} -n ${project} --from-repo=. --follow"
+              }
+
+              stage ('Verify Service') {
+                openshiftVerifyService serviceName: appName, namespace: project
+                setBuildStatus("ci/preview", "preview available", "SUCCESS", "https://www.github.com")
+              }
+              def appHostName = getRouteHostname(appName, project)
+              stage ('Manual Test') {
+                timeout(time:2, unit:'DAYS') {
+                  input "Preview is available at http://${appHostName} Is everything OK?"
+                }
+              }
+              approved = true
+            }
+          }
+          finally {
+            if (projectCreated) {
+              node {
+                stage('Delete PR Project') {
+                  sh "oc delete project ${project}"
+                }
+              }
+            }
+          }
+      type: JenkinsPipeline
+    triggers:
+    - type: ConfigChange
