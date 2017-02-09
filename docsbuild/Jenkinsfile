@@ -1,6 +1,7 @@
 #!/usr/bin/env groovy
 
 // Parameters expected:
+// gitref - github branch ref to build
 // githubCommit - sha of GitHub commit that is being tested
 
 def project=""
@@ -25,7 +26,25 @@ openshift.withCluster() {
         node {
             stage("Checkout") {
                 setBuildStatus("ci/preview", "Generating preview", "PENDING", "${RUN_DISPLAY_URL}")
-                checkout scm
+                checkout 
+                  changelog: false, 
+                  poll: false, 
+                  scm: [$class: 'GitSCM', 
+                    branches: [
+                      [name: gitref]
+                    ], 
+                    doGenerateSubmoduleConfigurations: false, 
+                    extensions: [], 
+                    submoduleCfg: [], 
+                    userRemoteConfigs: [
+                      [
+                        credentialsId: 'prtestbot_userpass', 
+                        name: 'origin', 
+                        refspec: '+refs/pull/*:refs/remotes/origin/pr/*', 
+                        url: 'https://github.com/cw-paas-dev/openshift-docs.git'
+                      ]
+                    ]
+                  ]
             }
             stage ("Create Project") {
                 project="docs-${githubCommit.substring(0,8)}"
