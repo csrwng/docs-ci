@@ -37,7 +37,7 @@ openshift.withCluster() {
                     ], 
                     doGenerateSubmoduleConfigurations: false, 
                     extensions: [
-                      [$class: 'RelativeTargetDirectory', relativeTargetDir: 'docs-repo']],
+                      [$class: 'RelativeTargetDirectory', relativeTargetDir: 'docs-repo']
                     ], 
                     submoduleCfg: [], 
                     userRemoteConfigs: [
