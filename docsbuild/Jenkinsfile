@@ -27,8 +27,8 @@ openshift.withCluster() {
     try {
         node {
             stage("Checkout") {
-                setBuildStatus("ci/preview", "Generating preview", "PENDING", "${RUN_DISPLAY_URL}")
-                setBuildStatus("ci/preview/docs", "Not yet available", "PENDING", "")
+                setBuildStatus("ci/preview", "Generating preview.", "PENDING", "${RUN_DISPLAY_URL}")
+                setBuildStatus("ci/preview/docs", "Preview not available.", "PENDING", "")
                 checkout scm
                 checkout(changelog: false, poll: false, 
                   scm: [$class: 'GitSCM', 
@@ -82,7 +82,7 @@ openshift.withCluster() {
                     def route = openshift.selector("route", appName)
                     def hostName = route.object().spec.host
                     setBuildStatus("ci/preview", "Preview available.", "PENDING", "${RUN_DISPLAY_URL}")
-                    setBuildStatus("ci/preview/docs", "Click on Details to see preview.", "PENDING", "http://${hostName}/index.html")
+                    setBuildStatus("ci/preview/docs", "Click on Details to see preview.", "SUCCESS", "http://${hostName}/index.html")
                     previewGenerated=true
                     timeout(time:2, unit:'DAYS') {
                         input(message: "Done with preview?", ok: "Done")
@@ -104,6 +104,7 @@ openshift.withCluster() {
             setBuildStatus("ci/preview/docs", "Done.", "SUCCESS", "")
         } else {
             setBuildStatus("ci/preview", "Failed to generate preview.", "FAILURE", "")
+            setBuildStatus("ci/preview", "Preview not available.", "FAILURE", "")
         }
     }
 }
