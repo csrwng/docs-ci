@@ -9,6 +9,8 @@ git init . && git add . && git commit -m "build"
 
 echo "---> Building preview"
 JAVA_HOME=/usr/lib/jvm/jre asciibinder build
+echo "---> Copying index file to preview"
 cp _openshift/index.html _preview
+echo "---> Setting group permissions"
 chgrp -R root . && chmod -R g+wx .
 
