@@ -28,13 +28,17 @@ openshift.withCluster() {
         node {
             stage("Checkout") {
                 setBuildStatus("ci/preview", "Generating preview", "PENDING", "${RUN_DISPLAY_URL}")
+                setBuildStatus("ci/preview/docs", "Not yet available", "PENDING", "")
+                checkout scm
                 checkout(changelog: false, poll: false, 
                   scm: [$class: 'GitSCM', 
                     branches: [
                       [name: gitref]
                     ], 
                     doGenerateSubmoduleConfigurations: false, 
-                    extensions: [], 
+                    extensions: [
+                      [$class: 'RelativeTargetDirectory', relativeTargetDir: 'docs-repo']],
+                    ], 
                     submoduleCfg: [], 
                     userRemoteConfigs: [
                       [
@@ -57,12 +61,13 @@ openshift.withCluster() {
                 }
                 
                 stage ("Apply object configurations") {
-                    objs = openshift.process(readFile("_openshift/docs-template.yaml"))
+                    objs = openshift.process(readFile("docs-repo/_openshift/docs-template.yaml"))
                     openshift.apply(objs)
                 }
                 
                 stage ("Build") {
-                    openshift.startBuild(appName, "--from-repo=.", "--follow")
+                    sh "cp -R docsbuild/overrides/* docsbuild/overrides/.* ./docs-repo"
+                    openshift.startBuild(appName, "--from-repo=docs-repo", "--follow")
                 }
                 
                 stage ("Verify Service") {
