@@ -65,8 +65,7 @@ objects:
               sh "oc start-build bc/${name} --follow --from-dir=./jenkins"
             }
             stage("Deploy Jenkins") {
-              def params = "-p ENABLE_OAUTH=false"
-              params += " -p MEMORY_LIMIT=2Gi"
+              def params = "-p MEMORY_LIMIT=2Gi"
               params += " -p NAMESPACE=\"\""
               params += " -p JENKINS_IMAGE_STREAM_TAG=docs-ci-jenkins:latest"
               params += " -p JENKINS_SERVICE_NAME=docs-ci-jenkins"
