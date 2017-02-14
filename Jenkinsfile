@@ -52,15 +52,14 @@ node {
     }
     def build; 
     // Start a build
-    build = sh(script: "oc start-build bc/${name} -n ${project}", returnStdout: true).trim()
-    echo "The split build is ${build.split()[1]}"
+    build = sh(script: "oc start-build bc/${name} -n ${project} -o name", returnStdout: true).trim()
     // Wait for the build to not be in the New or Pending state
     timeout(5) {
-      sh "while(true); do if oc get build ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
+      sh "while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
     }
-    sh "oc logs -n ${project} -f build/${build}"
+    sh "oc logs -n ${project} -f ${build}"
     // Verify that the build is in the Complete state
-    sh "oc get build ${build} -n ${project} -o jsonpath = '{ .status.phase }' | grep -q Complete"
+    sh "oc get ${build} -n ${project} -o jsonpath = '{ .status.phase }' | grep -q Complete"
   }
   stage("Build Jenkins with Plugins") {
     def sourceUrl = params.jenkinsDocsCISourceUrl
@@ -77,14 +76,14 @@ node {
     sh "oc new-app -f openshift/jenkins-s2i-build-template.yaml ${params} --dry-run -o yaml -n ${project} | oc apply -n ${project} -f - "
     def build; 
     // Start a build
-    build = sh(script: "oc start-build bc/${name} -n ${project}", returnStdout: true).trim().split()[1]
+    build = sh(script: "oc start-build bc/${name} -n ${project} -o name", returnStdout: true).trim()
     // Wait for the build to not be in the New or Pending state
     timeout(5) {
-      sh "while(true); do if oc get build ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
+      sh "while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
     }
-    sh "oc logs -n ${project} -f build/${build}"
+    sh "oc logs -n ${project} -f ${build}"
     // Verify that the build is in the Complete state
-    sh "oc get build ${build} -n ${project} -o jsonpath = '{ .status.phase }' | grep -q Complete"
+    sh "oc get ${build} -n ${project} -o jsonpath = '{ .status.phase }' | grep -q Complete"
   }
   stage("Deploy Jenkins") {
     def memory = params.jenkinsMemory
