@@ -130,7 +130,7 @@ node {
     sh "curl " + 
        "-X POST " + 
        '-H "Authorization: Bearer ' + saToken + '" ' + 
-       'http://docs-ci-jenkins:8080/credentials/store/system/domain/_/createCredentials ' +
+       'http://docs-ci-jenkins/credentials/store/system/domain/_/createCredentials ' +
        "--data-urlencode '" +
           'json={ "":"0", ' +
           '"credentials": { ' +
@@ -143,7 +143,7 @@ node {
     sh "curl " + 
        "-X POST " + 
        '-H "Authorization: Bearer ' + saToken + '" ' + 
-       'http://docs-ci-jenkins:8080/credentials/store/system/domain/_/createCredentials ' +
+       'http://docs-ci-jenkins/credentials/store/system/domain/_/createCredentials ' +
        "--data-urlencode '" +
           'json={ "":"0", ' +
           '"credentials": { ' +
