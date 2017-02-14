@@ -53,6 +53,11 @@ node {
     def sourceUrl = params.jenkinsDocsCISourceUrl
     def sourceRef = params.jenkinsDocsCISourceRef
     def sourceContext = params.jenkinsDocsCIContext
+    def docsProjectUrl = params.docsProjectUrl
+    def docsRepositoryUrl = params.docsRepositoryUrl
+    def docsAdmins = params.docsAdmins
+    def whitelistOrgs = params.whitelistOrgs
+
     def name = "docs-ci-jenkins"
     def params = "-p NAME=${name}"
     params += " -p SOURCE_URL=${sourceUrl}"
@@ -66,11 +71,11 @@ node {
 
     // Transform job templates
     def env = [
-      "GITHUB_PROJECT_URL=${params.docsProjectUrl}",
-      "GITHUB_REPOSITORY_URL=${params.docsRepositoryUrl}",
-      "PROJECT_ADMINS=${params.docsAdmins}",
-      "WHITELIST_ORGS=${params.whitelistOrgs}",
-      "CI_REPOSITORY_URL=${sourceUrl}",
+      "GITHUB_PROJECT_URL=${docsProjectUrl}",
+      "GITHUB_REPOSITORY_URL=${docsRepositoryUrl}",
+      "PROJECT_ADMINS=${docsAdmins}",
+      "WHITELIST_ORGS=${whitelistOrgs}",
+      "CI_REPOSITORY_URL=${sourceUrl}"
     ]
 
     withEnv(env) {
