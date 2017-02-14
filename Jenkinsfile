@@ -25,9 +25,9 @@ node {
         name: 'docsAdmins'
       ),
       string(
-        defaultValue: 'whitelistOrgs', 
+        defaultValue: 'openshift', 
         description: 'Docs White-listed Organizations', 
-        name: 'openshift'
+        name: 'whitelistOrgs'
       ),
       string(
         defaultValue: 'https://github.com/csrwng/docs-ci.git', 
