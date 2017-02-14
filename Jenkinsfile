@@ -48,7 +48,7 @@ node {
     params += " -p SOURCE_REF=${sourceRef}"
     sh "oc new-app -f openshift/jenkins-docker-build-template.yaml ${params} --dry-run -o yaml -n ${project} | oc apply -n ${project} -f - "
     timeout(10) {
-      sh "while(true); do if oc get is -n ${project} centos -o jsonpath='{ .status.tags[*].tag }' | grep -q centos7; then break; fi; done"
+      sh "while(true); do if oc get is -n ${project} centos -o jsonpath='{ .status.tags[*].tag }' | grep -q centos7; then break; fi; sleep 1; done"
     }
     def build; 
     // Start a build
@@ -56,10 +56,14 @@ node {
     // Wait for the build to not be in the New or Pending state
     echo "Waiting for ${build} to start..."
     timeout(5) {
-      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
+      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; sleep 1; done"
     }
     sh "oc logs -n ${project} -f ${build}"
-    // Verify that the build is in the Complete state
+    // Wait for the build to finish running
+    timeout(5) {
+      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'Running'; then break; fi; sleep 1; done"
+    }
+    // Verify that the build is in the complete state
     sh "oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | grep -q Complete"
   }
   stage("Build Jenkins with Plugins") {
@@ -81,9 +85,15 @@ node {
     // Wait for the build to not be in the New or Pending state
     echo "Waiting for ${build} to start..."
     timeout(5) {
-      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
+      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; sleep 1; done"
     }
     sh "oc logs -n ${project} -f ${build}"
+
+    // Wait for the build to finish running
+    timeout(5) {
+      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'Running'; then break; fi; sleep 1; done"
+    }
+
     // Verify that the build is in the Complete state
     sh "oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | grep -q Complete"
   }
