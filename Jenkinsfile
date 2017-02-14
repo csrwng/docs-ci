@@ -125,6 +125,8 @@ node {
   }
   stage("Setup Jenkins Credentials") {
     def saToken = sh(script:'oc whoami -t', returnStdout:true).trim()
+    def githubUser = params.githubUser
+    def githubToken = params.githubToken
     sh "curl " + 
        "-X POST " + 
        '-H "Authorization: Bearer ' + saToken + '" ' + 
