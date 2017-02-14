@@ -43,11 +43,6 @@ node {
         defaultValue: 'jenkins', 
         description: 'Git Context Directory of the repository that contains Jenkins customizations for docs-ci', 
         name: 'jenkinsDocsCIContext'
-      ),
-      string(
-        defaultValue: 'jenkins', 
-        description: 'Git Context Directory of the repository that contains Jenkins customizations for docs-ci', 
-        name: 'jenkinsDocsCIContext'
       )
     ])
   }
