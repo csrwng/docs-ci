@@ -5,6 +5,16 @@ node {
   stage("Input Parameters") {
     params = input(message: "Enter CI deploy parameters", parameters: [
       string(
+        defaultValue: 'cwbotbot',
+        description: 'GitHub User',
+        name: 'githubUser'
+      ),
+      password(
+        defaultValue: '',
+        description: 'GitHub Token',
+        name: 'githubToken'
+      ),
+      string(
         defaultValue: '2Gi',
         description: 'Jenkins docs-ci memory',
         name: 'jenkinsMemory'
@@ -112,5 +122,33 @@ node {
     params += " -p JNLP_SERVICE_NAME=docs-ci-jnlp"
     sh "oc new-app jenkins-persistent ${params} --dry-run -o yaml -n ${project} | oc apply -n ${project} -f - "
     openshiftVerifyDeployment depCfg: "docs-ci-jenkins"
+  }
+  stage("Setup Jenkins Credentials") {
+    def saToken = sh(script:'oc whoami -t', returnStdout:true).trim()
+    sh "curl " + 
+       "-X POST " + 
+       '-H "Authorization: Bearer ' + saToken + '" ' + 
+       'http://docs-ci-jenkins:8080/credentials/store/system/domain/_/createCredentials ' +
+       "--data-urlencode '" +
+          'json={ "":"0", ' +
+          '"credentials": { ' +
+          '   "scope": "GLOBAL", ' +
+          '   "id": "github_userpass", ' + 
+          '   "username": "' + githubUser + '", ' + 
+          '   "password": "' + githubToken + '", ' +
+          '   "description": "", ' +
+          '   "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl" } }' + "'"
+    sh "curl " + 
+       "-X POST " + 
+       '-H "Authorization: Bearer ' + saToken + '" ' + 
+       'http://docs-ci-jenkins:8080/credentials/store/system/domain/_/createCredentials ' +
+       "--data-urlencode '" +
+          'json={ "":"0", ' +
+          '"credentials": { ' +
+          '   "scope": "GLOBAL", ' +
+          '   "id": "github_token", ' + 
+          '   "secret": "' + githubToken + '", ' +
+          '   "description": "", ' +
+          '   "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl" } }' + "'"
   }
 }
