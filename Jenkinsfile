@@ -53,6 +53,7 @@ node {
     def build; 
     // Start a build
     build = sh(script: "oc start-build bc/${name} -n ${project}", returnStdout: true).trim()
+    echo "The split build is ${build.split()[1]}"
     // Wait for the build to not be in the New or Pending state
     timeout(5) {
       sh "while(true); do if oc get build ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
