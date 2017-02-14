@@ -1,0 +1,25 @@
+apiVersion: v1
+kind: Template
+labels:
+  template: jenkins-image-stream
+metadata:
+  name: jenkins-image-stream
+parameters:
+- name: NAME
+  description: The name of the Jenkins image-stream
+  displayName: ImageStream Name
+  value: jenkins
+  required: true
+objects:
+- apiVersion: v1
+  kind: ImageStream
+  metadata:
+    name: "${NAME}"
+  spec:
+    tags:
+    - from:
+        kind: DockerImage
+        name: openshift/jenkins-2-centos7:latest
+      name: "latest"
+      referencePolicy:
+        type: Source
