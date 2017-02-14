@@ -78,7 +78,7 @@ node {
       "CI_REPOSITORY_URL=${sourceUrl}"
     ]
     
-    def vars="$GITHUB_PROJECT_URL,$GITHUB_REPOSITORY_URL,$PROJECT_ADMINS,$WHITELIST_ORGS,$CI_REPOSITORY_URL"
+    def vars='$GITHUB_PROJECT_URL,$GITHUB_REPOSITORY_URL,$PROJECT_ADMINS,$WHITELIST_ORGS,$CI_REPOSITORY_URL'
 
     withEnv(env) {
       sh "cat jenkins/configuration/jobs/docs-pr-test/config.xml.template | envsubst '" + vars + "' > jenkins/configuration/jobs/docs-pr-test/config.xml"
