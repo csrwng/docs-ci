@@ -32,7 +32,7 @@ node {
   stage("Build Jenkins with Plugins") {
     def sourceUrl = params.jenkinsDocsCISourceUrl
     def sourceRef = params.jenkinsDocsCISourceRef
-    def sourceContext = params.jenkinsDocsCISourceContext
+    def sourceContext = params.jenkinsDocsCIContext
     def name = "docs-ci-jenkins"
     def params = "-p NAME=${name}"
     params += " -p SOURCE_URL=${sourceUrl}"
