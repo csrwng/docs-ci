@@ -10,6 +10,26 @@ node {
         name: 'jenkinsMemory'
       ),
       string(
+        defaultValue: 'https://github.com/cw-paas-dev/openshift-docs', 
+        description: 'Git project URL for Docs', 
+        name: 'docsProjectUrl'
+      ),
+      string(
+        defaultValue: 'https://github.com/cw-paas-dev/openshift-docs.git', 
+        description: 'Git clone URL for Docs', 
+        name: 'docsRepositoryUrl'
+      ),
+      string(
+        defaultValue: 'cwbotbot', 
+        description: 'Docs Administrators', 
+        name: 'docsAdmins'
+      ),
+      string(
+        defaultValue: 'whitelistOrgs', 
+        description: 'Docs White-listed Organizations', 
+        name: 'openshift'
+      ),
+      string(
         defaultValue: 'https://github.com/csrwng/docs-ci.git', 
         description: 'Git URL of the repository that contains Jenkins customizations for docs-ci', 
         name: 'jenkinsDocsCISourceUrl'
@@ -19,6 +39,11 @@ node {
         description: 'Git Ref of the repository that contains Jenkins customizations for docs-ci', 
         name: 'jenkinsDocsCISourceRef'
       ),
+      string(
+        defaultValue: 'jenkins', 
+        description: 'Git Context Directory of the repository that contains Jenkins customizations for docs-ci', 
+        name: 'jenkinsDocsCIContext'
+      )
       string(
         defaultValue: 'jenkins', 
         description: 'Git Context Directory of the repository that contains Jenkins customizations for docs-ci', 
@@ -43,6 +68,23 @@ node {
     params += " -p BASE_NAMESPACE=\"\""
     sh "oc new-app -f openshift/jenkins-image-stream.yaml --dry-run -o yaml -n ${project} | oc apply -n ${project} -f - "
     sh "oc new-app -f openshift/jenkins-s2i-build-template.yaml ${params} --dry-run -o yaml -n ${project} | oc apply -n ${project} -f - "
+
+    // Transform job templates
+    def env = [
+      "GITHUB_PROJECT_URL=${params.docsProjectUrl}",
+      "GITHUB_REPOSITORY_URL=${params.docsRepositoryUrl}",
+      "PROJECT_ADMINS=${params.docsAdmins}",
+      "WHITELIST_ORGS=${params.whitelistOrgs}",
+      "CI_REPOSITORY_URL=${sourceUrl}",
+    ]
+
+    withEnv(env) {
+      sh "cat jenkins/configuration/jobs/docs-pr-test/config.xml.template | envsubst > jenkins/configuration/jobs/docs-pr-test/config.xml"
+      sh "cat jenkins/configuration/jobs/docs-pr-trigger/config.xml.template | envsubst > jenkins/configuration/jobs/docs-pr-trigger/config.xml"
+      sh "cat jenkins/configuration/jobs/docs-pr-test/config.xml"
+      sh "cat jenkins/configuration/jobs/docs-pr-trigger/config.xml"
+    }
+
     def build; 
     // Start a build
     build = sh(script: "oc start-build bc/${name} -n ${project} --from-dir=${sourceContext} -o name", returnStdout: true).trim()

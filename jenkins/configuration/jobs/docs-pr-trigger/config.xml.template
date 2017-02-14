@@ -16,7 +16,7 @@
         <name>origin</name>
         <refspec>+refs/pull/*:refs/remotes/origin/pr/*</refspec>
         <url>${GITHUB_REPOSITORY_URL}</url>
-        <credentialsId>prtestbot_userpass</credentialsId>
+        <credentialsId>github_userpass</credentialsId>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
     <branches>
@@ -99,7 +99,8 @@
           <configs>
             <hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
               <properties>gitref=${sha1}
-githubCommit=${ghprbActualCommit}</properties>
+githubCommit=${ghprbActualCommit}
+githubRepositoryUrl=${GITHUB_REPOSITORY_URL}</properties>
             </hudson.plugins.parameterizedtrigger.PredefinedBuildParameters>
           </configs>
           <projects>docs-pr-test</projects>

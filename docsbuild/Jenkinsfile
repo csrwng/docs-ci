@@ -9,7 +9,7 @@ def projectCreated=false
 def appName="openshift-docs"
 def projectPrefix="docs"
 def previewGenerated=false
-def repoUrl="https://github.com/cw-paas-dev/openshift-docs.git"
+def repoUrl=githubRepositoryUrl
 
 def setBuildStatus = { String context, String message, String state, String backref ->
      step([$class: "GitHubCommitStatusSetter",
@@ -42,7 +42,7 @@ openshift.withCluster() {
                     submoduleCfg: [], 
                     userRemoteConfigs: [
                       [
-                        credentialsId: 'prtestbot_userpass', 
+                        credentialsId: 'github_userpass', 
                         name: 'origin', 
                         refspec: '+refs/pull/*:refs/remotes/origin/pr/*', 
                         url: repoUrl,
