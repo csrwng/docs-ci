@@ -66,9 +66,7 @@ objects:
           name: "${BASE_NAME}:${BASE_TAG}"
           namespace: "${BASE_NAMESPACE}"
       type: Source
-    triggers:
-    - imageChange: {}
-      type: ImageChange
+    triggers: {}
 - apiVersion: v1
   kind: ImageStream
   metadata:
