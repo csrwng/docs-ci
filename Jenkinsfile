@@ -54,12 +54,13 @@ node {
     // Start a build
     build = sh(script: "oc start-build bc/${name} -n ${project} -o name", returnStdout: true).trim()
     // Wait for the build to not be in the New or Pending state
+    echo "Waiting for ${build} to start..."
     timeout(5) {
-      sh "while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
+      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
     }
     sh "oc logs -n ${project} -f ${build}"
     // Verify that the build is in the Complete state
-    sh "oc get ${build} -n ${project} -o jsonpath = '{ .status.phase }' | grep -q Complete"
+    sh "oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | grep -q Complete"
   }
   stage("Build Jenkins with Plugins") {
     def sourceUrl = params.jenkinsDocsCISourceUrl
@@ -78,12 +79,13 @@ node {
     // Start a build
     build = sh(script: "oc start-build bc/${name} -n ${project} -o name", returnStdout: true).trim()
     // Wait for the build to not be in the New or Pending state
+    echo "Waiting for ${build} to start..."
     timeout(5) {
-      sh "while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
+      sh "set +x; while(true); do if oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
     }
     sh "oc logs -n ${project} -f ${build}"
     // Verify that the build is in the Complete state
-    sh "oc get ${build} -n ${project} -o jsonpath = '{ .status.phase }' | grep -q Complete"
+    sh "oc get ${build} -n ${project} -o jsonpath='{ .status.phase }' | grep -q Complete"
   }
   stage("Deploy Jenkins") {
     def memory = params.jenkinsMemory
