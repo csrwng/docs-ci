@@ -76,7 +76,7 @@ node {
     sh "oc new-app -f openshift/jenkins-s2i-build-template.yaml ${params} --dry-run -o yaml -n ${project} | oc apply -n ${project} -f - "
     def build; 
     // Start a build
-    build = sh(script: "oc start-build bc/${name} -n ${project}", returnStdout: true).trim()
+    build = sh(script: "oc start-build bc/${name} -n ${project}", returnStdout: true).trim().split()[1]
     // Wait for the build to not be in the New or Pending state
     timeout(5) {
       sh "while(true); do if oc get build ${build} -n ${project} -o jsonpath='{ .status.phase }' | egrep -qv 'New|Pending'; then break; fi; done"
