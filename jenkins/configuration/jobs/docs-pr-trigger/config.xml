@@ -5,7 +5,7 @@
   <keepDependencies>false</keepDependencies>
   <properties>
     <com.coravy.hudson.plugins.github.GithubProjectProperty plugin="github@1.25.1">
-      <projectUrl>https://github.com/cw-paas-dev/openshift-docs/</projectUrl>
+      <projectUrl>${GITHUB_PROJECT_URL}</projectUrl>
       <displayName></displayName>
     </com.coravy.hudson.plugins.github.GithubProjectProperty>
   </properties>
@@ -15,7 +15,7 @@
       <hudson.plugins.git.UserRemoteConfig>
         <name>origin</name>
         <refspec>+refs/pull/*:refs/remotes/origin/pr/*</refspec>
-        <url>https://github.com/cw-paas-dev/openshift-docs.git</url>
+        <url>${GITHUB_REPOSITORY_URL}</url>
         <credentialsId>prtestbot_userpass</credentialsId>
       </hudson.plugins.git.UserRemoteConfig>
     </userRemoteConfigs>
@@ -37,9 +37,9 @@
       <spec>H/2 * * * *</spec>
       <latestVersion>3</latestVersion>
       <configVersion>3</configVersion>
-      <adminlist>cwbotbot</adminlist>
+      <adminlist>${PROJECT_ADMINS}</adminlist>
       <allowMembersOfWhitelistedOrgsAsAdmin>true</allowMembersOfWhitelistedOrgsAsAdmin>
-      <orgslist>openshift</orgslist>
+      <orgslist>${WHITELIST_ORGS}</orgslist>
       <cron>H/2 * * * *</cron>
       <buildDescTemplate>PR #$pullId: $title</buildDescTemplate>
       <onlyTriggerPhrase>false</onlyTriggerPhrase>
