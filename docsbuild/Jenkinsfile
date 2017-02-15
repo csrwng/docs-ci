@@ -67,7 +67,9 @@ openshift.withCluster() {
                 
                 stage ("Build") {
                     sh "cp -R docsbuild/overrides/* docsbuild/overrides/.s2i ./docs-repo"
-                    openshift.startBuild(appName, "--from-dir=docs-repo", "--follow")
+                    def docbuild; 
+                    docbuild=openshift.startBuild(appName, "--from-dir=docs-repo")
+                    docbuild.logs('-f')
                 }
                 
                 stage ("Verify Service") {
