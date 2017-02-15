@@ -69,7 +69,7 @@ openshift.withCluster() {
                     timeout(5) {
                       s2ibuilder.untilEach() {
                         def tags = it.object().status.tags
-                        if (tags != nil) {
+                        if (tags != null) {
                           for (def i = 0; i < tags.size(); i++) {
                             if (tags[i].tag == "latest") {
                               return true
