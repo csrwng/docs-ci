@@ -2,6 +2,20 @@
 
 node {
   def project="${env.PROJECT_NAME}"
+  stage("Check pre-conditions") {
+    // Check that the docs-ci-jenkins service account can create new projects. Otherwise, fail
+    try {
+      sh "oc policy can-i -q create projectrequests --as system:serviceaccount:${project}:docs-ci-jenkins"
+    } catch(e) {
+      echo "Please ensure that the docs-ci-jenkins service account has permission to create new projects"
+      echo "You can add this access with the following command: \n"
+      echo "--------------------------------------------------------------------------------------------------------"
+      echo "oc adm policy add-cluster-role-to-user self-provisioner system:serviceaccount:${project}:docs-ci-jenkins"
+      echo "--------------------------------------------------------------------------------------------------------\n"
+      echo "After doing that, re-run this pipeline."
+      throw e
+    }
+  }
   stage("Input Parameters") {
     params = input(message: "Enter CI deploy parameters", parameters: [
       string(
