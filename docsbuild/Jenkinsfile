@@ -63,6 +63,22 @@ openshift.withCluster() {
                 stage ("Apply object configurations") {
                     objs = openshift.process(readFile("docs-repo/_openshift/docs-template.yaml"))
                     openshift.apply(objs)
+
+                    // Wait until s2i builder tags are available
+                    s2ibuilder = openshift.selector("imagestream", "openshift-docs-s2i")
+                    timeout(5) {
+                      s2ibuilder.untilEach() {
+                        def tags = it.object().status.tags
+                        if (tags != nil) {
+                          for (def i = 0; i < tags.size(); i++) {
+                            if (tags[i].tag == "latest") {
+                              return true
+                            }
+                          }
+                        }
+                        return false
+                      }
+                    }
                 }
                 
                 stage ("Build") {
