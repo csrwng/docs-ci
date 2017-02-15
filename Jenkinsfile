@@ -3,9 +3,11 @@
 node {
   def project="${env.PROJECT_NAME}"
   stage("Check pre-conditions") {
+    token=readFile("/var/run/secrets/kubernetes.io/serviceaccount/token").trim()
+    caPath="/var/run/secrets/kubernetes.io/serviceaccount/ca.crt"
     // Check that the docs-ci-jenkins service account can create new projects. Otherwise, fail
     try {
-      sh "oc policy can-i -q create projectrequests --as system:serviceaccount:${project}:docs-ci-jenkins"
+      sh "oc policy can-i -q create projectrequests --as system:serviceaccount:${project}:docs-ci-jenkins --certificate-authority=${caPath} --token=${token}"
     } catch(e) {
       echo "Please ensure that the docs-ci-jenkins service account has permission to create new projects"
       echo "You can add this access with the following command: \n"
