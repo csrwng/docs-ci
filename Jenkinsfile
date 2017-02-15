@@ -20,38 +20,38 @@ node {
         name: 'jenkinsMemory'
       ),
       string(
-        defaultValue: 'https://github.com/cw-paas-dev/openshift-docs', 
-        description: 'Git project URL for Docs', 
+        defaultValue: 'https://github.com/cw-paas-dev/openshift-docs',
+        description: 'Git project URL for Docs',
         name: 'docsProjectUrl'
       ),
       string(
-        defaultValue: 'https://github.com/cw-paas-dev/openshift-docs.git', 
-        description: 'Git clone URL for Docs', 
+        defaultValue: 'https://github.com/cw-paas-dev/openshift-docs.git',
+        description: 'Git clone URL for Docs',
         name: 'docsRepositoryUrl'
       ),
       string(
-        defaultValue: 'cwbotbot', 
-        description: 'Docs Administrators', 
+        defaultValue: 'cwbotbot',
+        description: 'Docs Administrators',
         name: 'docsAdmins'
       ),
       string(
-        defaultValue: 'openshift', 
-        description: 'Docs White-listed Organizations', 
+        defaultValue: 'openshift',
+        description: 'Docs White-listed Organizations',
         name: 'whitelistOrgs'
       ),
       string(
-        defaultValue: 'https://github.com/csrwng/docs-ci.git', 
-        description: 'Git URL of the repository that contains Jenkins customizations for docs-ci', 
+        defaultValue: 'https://github.com/csrwng/docs-ci.git',
+        description: 'Git URL of the repository that contains Jenkins customizations for docs-ci',
         name: 'jenkinsDocsCISourceUrl'
       ),
       string(
-        defaultValue: 'master', 
-        description: 'Git Ref of the repository that contains Jenkins customizations for docs-ci', 
+        defaultValue: 'master',
+        description: 'Git Ref of the repository that contains Jenkins customizations for docs-ci',
         name: 'jenkinsDocsCISourceRef'
       ),
       string(
-        defaultValue: 'jenkins', 
-        description: 'Git Context Directory of the repository that contains Jenkins customizations for docs-ci', 
+        defaultValue: 'jenkins',
+        description: 'Git Context Directory of the repository that contains Jenkins customizations for docs-ci',
         name: 'jenkinsDocsCIContext'
       )
     ])
@@ -87,7 +87,7 @@ node {
       "WHITELIST_ORGS=${whitelistOrgs}",
       "CI_REPOSITORY_URL=${sourceUrl}"
     ]
-    
+
     def vars='$GITHUB_PROJECT_URL,$GITHUB_REPOSITORY_URL,$PROJECT_ADMINS,$WHITELIST_ORGS,$CI_REPOSITORY_URL'
 
     withEnv(env) {
@@ -95,7 +95,7 @@ node {
       sh "cat jenkins/configuration/jobs/docs-pr-trigger/config.xml.template | envsubst '" + vars + "' > jenkins/configuration/jobs/docs-pr-trigger/config.xml"
     }
 
-    def build; 
+    def build;
     // Start a build
     build = sh(script: "oc start-build bc/${name} -n ${project} --from-dir=${sourceContext} -o name", returnStdout: true).trim()
     // Wait for the build to not be in the New or Pending state
@@ -124,33 +124,34 @@ node {
     openshiftVerifyDeployment depCfg: "docs-ci-jenkins"
   }
   stage("Setup Jenkins Credentials") {
+    echo "Creating Github Credentials"
     def saToken = sh(script:'oc whoami -t', returnStdout:true).trim()
     def githubUser = params.githubUser
     def githubToken = params.githubToken
-    sh "curl " + 
-       "-X POST " + 
-       '-H "Authorization: Bearer ' + saToken + '" ' + 
+    sh "set +x; curl " +
+       "-X POST " +
+       '-H "Authorization: Bearer ' + saToken + '" ' +
        'http://docs-ci-jenkins/credentials/store/system/domain/_/createCredentials ' +
        "--data-urlencode '" +
           'json={ "":"0", ' +
           '"credentials": { ' +
           '   "scope": "GLOBAL", ' +
-          '   "id": "github_userpass", ' + 
-          '   "username": "' + githubUser + '", ' + 
+          '   "id": "github_userpass", ' +
+          '   "username": "' + githubUser + '", ' +
           '   "password": "' + githubToken + '", ' +
           '   "description": "", ' +
           '   "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl" } }' + "'"
-    sh "curl " + 
-       "-X POST " + 
-       '-H "Authorization: Bearer ' + saToken + '" ' + 
+    sh "set +x; curl " +
+       "-X POST " +
+       '-H "Authorization: Bearer ' + saToken + '" ' +
        'http://docs-ci-jenkins/credentials/store/system/domain/_/createCredentials ' +
        "--data-urlencode '" +
           'json={ "":"0", ' +
           '"credentials": { ' +
           '   "scope": "GLOBAL", ' +
-          '   "id": "github_token", ' + 
+          '   "id": "github_token", ' +
           '   "secret": "' + githubToken + '", ' +
           '   "description": "", ' +
-          '   "$class": "com.cloudbees.plugins.credentials.impl.UsernamePasswordCredentialsImpl" } }' + "'"
+          '   "$class": "org.jenkinsci.plugins.plaincredentials.impl.StringCredentialsImpl" } }' + "'"
   }
 }
