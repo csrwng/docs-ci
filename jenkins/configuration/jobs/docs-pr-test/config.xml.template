@@ -31,6 +31,11 @@
           <description></description>
           <defaultValue></defaultValue>
         </hudson.model.StringParameterDefinition>
+        <hudson.model.StringParameterDefinition>
+          <name>projectPrefix</name>
+          <description></description>
+          <defaultValue>${PROJECT_PREFIX}</defaultValue>
+        </hudson.model.StringParameterDefinition>
       </parameterDefinitions>
     </hudson.model.ParametersDefinitionProperty>
     <org.jenkinsci.plugins.workflow.job.properties.PipelineTriggersJobProperty>

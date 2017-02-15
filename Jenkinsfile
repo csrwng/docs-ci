@@ -31,6 +31,11 @@ node {
         name: 'githubToken'
       ),
       string(
+        defaultValue: 'docs',
+        description: 'Prefix to use when creating new preview projects',
+        name: 'projectPrefix'
+      ),
+      string(
         defaultValue: '2Gi',
         description: 'Jenkins docs-ci memory',
         name: 'jenkinsMemory'
@@ -81,6 +86,7 @@ node {
     def sourceContext = params.jenkinsDocsCIContext
     def docsProjectUrl = params.docsProjectUrl
     def docsRepositoryUrl = params.docsRepositoryUrl
+    def projectPrefix = params.projectPrefix
     def docsAdmins = params.docsAdmins
     def whitelistOrgs = params.whitelistOrgs
 
@@ -101,10 +107,11 @@ node {
       "GITHUB_REPOSITORY_URL=${docsRepositoryUrl}",
       "PROJECT_ADMINS=${docsAdmins}",
       "WHITELIST_ORGS=${whitelistOrgs}",
-      "CI_REPOSITORY_URL=${sourceUrl}"
+      "CI_REPOSITORY_URL=${sourceUrl}",
+      "PROJECT_PREFIX=${projectPrefix}"
     ]
 
-    def vars='$GITHUB_PROJECT_URL,$GITHUB_REPOSITORY_URL,$PROJECT_ADMINS,$WHITELIST_ORGS,$CI_REPOSITORY_URL'
+    def vars='$GITHUB_PROJECT_URL,$GITHUB_REPOSITORY_URL,$PROJECT_ADMINS,$WHITELIST_ORGS,$CI_REPOSITORY_URL,$PROJECT_PREFIX'
 
     withEnv(env) {
       sh "cat jenkins/configuration/jobs/docs-pr-test/config.xml.template | envsubst '" + vars + "' > jenkins/configuration/jobs/docs-pr-test/config.xml"
